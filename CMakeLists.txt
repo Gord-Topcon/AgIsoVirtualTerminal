@@ -34,6 +34,12 @@ find_package(CAN_Stack MODULE)
 find_package(git_version MODULE)
 find_package(Threads REQUIRED)
 
+# Manually specify the path to Kvaser CANlib
+set(KVASER_CANLIB_INCLUDE_DIR "C:/Program Files (x86)/Kvaser/Canlib/Inc")
+set(KVASER_CANLIB_LIBRARY "C:/Program Files (x86)/Kvaser/Canlib/Lib/x64/canlib32.lib")
+
+include_directories(${KVASER_CANLIB_INCLUDE_DIR})
+
 juce_add_gui_app(
   AgISOVirtualTerminal
   ICON_BIG
@@ -108,6 +114,7 @@ target_link_libraries(
   AgISOVirtualTerminal
   PRIVATE juce::juce_gui_extra juce::juce_audio_basics juce::juce_audio_utils
           isobus::Isobus isobus::HardwareIntegration isobus::Utility
+          ${KVASER_CANLIB_LIBRARY}  # Link to Kvaser CANlib
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags
          cmake_git_version_tracking)
 
