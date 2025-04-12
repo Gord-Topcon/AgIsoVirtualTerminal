@@ -4,15 +4,16 @@
 ** @copyright  The Open-Agriculture Developers
 *******************************************************************************/
 #include "isobus/hardware_integration/available_can_drivers.hpp"
-
 #include "Main.hpp"
 #include "Settings.hpp"
 #include "git.h"
+#include "KVCanEcho.hpp" // Include the header here
 
 AgISOVirtualTerminalApplication::MainWindow::MainWindow(juce::String name, int vtNumberCmdLineArg) :
   DocumentWindow(name,
                  juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),
-                 DocumentWindow::allButtons)
+                 DocumentWindow::allButtons),
+  canEcho(std::make_unique<KVCanEcho>(0, canBITRATE_250K)) // Initialize KVCanEcho here
 {
 	int vtNumber = vtNumberCmdLineArg;
 #ifdef JUCE_WINDOWS

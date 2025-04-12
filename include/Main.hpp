@@ -12,6 +12,10 @@
 #include "isobus/hardware_integration/can_hardware_interface.hpp"
 #include "isobus/isobus/can_internal_control_function.hpp"
 #include "isobus/isobus/can_network_manager.hpp"
+#include "KVCanEcho.hpp"
+
+// Forward declaration of KVCanEcho
+class KVCanEcho;
 
 //==============================================================================
 class AgISOVirtualTerminalApplication : public juce::JUCEApplication
@@ -104,6 +108,8 @@ public:
 	private:
 		std::shared_ptr<isobus::InternalControlFunction> serverInternalControlFunction;
 		std::vector<std::shared_ptr<isobus::CANHardwarePlugin>> canDrivers;
+
+		std::unique_ptr<KVCanEcho> canEcho; // Use a unique_ptr for KVCanEcho
 
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
 	};

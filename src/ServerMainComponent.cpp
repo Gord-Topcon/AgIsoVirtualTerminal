@@ -947,7 +947,7 @@ bool ServerMainComponent::perform(const InvocationInfo &info)
 		{
 			configureHardwareWindow = std::make_unique<ConfigureHardwareWindow>(*this, parentCANDrivers);
 			configureHardwareWindow->addToDesktop();
-			Rectangle<int> area(0, 0, 400, 280);
+			juce::Rectangle<int> area(0, 0, 400, 280);
 			RectanglePlacement placement(RectanglePlacement::centred |
 			                             RectanglePlacement::doNotResize);
 			auto result = placement.appliedTo(area, Desktop::getInstance().getDisplays().getPrimaryDisplay()->userArea.reduced(20));

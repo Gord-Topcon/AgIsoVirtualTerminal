@@ -70,6 +70,7 @@ juce_generate_juce_header(AgISOVirtualTerminal)
 target_sources(
   AgISOVirtualTerminal
   PRIVATE src/Main.cpp
+          src/KVCanEcho.cpp
           "src/ServerMainComponent.cpp"
           "src/DataMaskComponent.cpp"
           "src/WorkingSetSelectorComponent.cpp"
@@ -158,6 +159,24 @@ if(WIN32)
       ${CMAKE_CURRENT_LIST_DIR}/lib/InnoMakerUsb2CanLib.dll
       "$<TARGET_FILE_DIR:AgISOVirtualTerminal>"
     VERBATIM)
+
+  # Define the path to the canlib32.dll
+  set(CANLIB_DLL_PATH "C:/Program Files (x86)/Kvaser/Canlib/Bin/canlib32.dll")
+
+  # Define the output directory (where the executable is built)
+  set(OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Debug")
+
+  # Add a post-build command to copy canlib32.dll to the output directory
+  add_custom_command(
+    TARGET AgISOVirtualTerminal 
+    POST_BUILD
+    COMMENT "Copying canlib32.dll to the output directory"
+    COMMAND 
+      ${CMAKE_COMMAND} -E copy_if_different
+      "${CANLIB_DLL_PATH}" # Source DLL
+      "$<TARGET_FILE_DIR:AgISOVirtualTerminal>"
+    VERBATIM)
+
 endif()
 
 if(APPLE)
