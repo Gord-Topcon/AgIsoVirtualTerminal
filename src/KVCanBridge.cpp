@@ -2,16 +2,28 @@
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
+#include <thread>
 
 KVCanBridge::KVCanBridge(int channel, long bitrate)
-    : channel(channel), bitrate(bitrate), vHandle(-1)
+    : channel(channel), bitrate(bitrate), vHandle(-1), runningFlag(false)
 {
     initializeVCan();
     initializeHCan();
+
+    // Start the thread to process incoming CAN messages
+    runningFlag = true;
+    vCanReadThread = std::thread(&KVCanBridge::processVCanMessages, this);
 }
 
 KVCanBridge::~KVCanBridge()
 {
+    // Stop the thread and wait for it to finish
+    runningFlag = false;
+    if (vCanReadThread.joinable())
+    {
+        vCanReadThread.join();
+    }
+
     finalizeHCan();
     finalizeVCan();
 }
@@ -98,5 +110,38 @@ void KVCanBridge::bridgeHtoVCan(const isobus::CANMessageFrame &canFrame)
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canWrite failed"));
+    }
+}
+
+void KVCanBridge::processVCanMessages()
+{
+    while (runningFlag)
+    {
+        long id;
+        unsigned char data[8];
+        unsigned int dlc;
+        unsigned int flags;
+        unsigned long timestamp;
+
+        isobus::CANMessageFrame frame;
+
+        canStatus status = canReadWait(vHandle, &id, data, &dlc, &flags, &timestamp, 1000); // 1000 ms timeout
+        if (status == canOK)
+        {
+            frame.identifier = id;
+            frame.dataLength = dlc;
+            std::copy(data, data + dlc, frame.data);
+            std::cout << "Received CAN message: ID=" << id << ", DLC=" << dlc << std::endl;
+            std::cout << "Data: " << std::hex;  // Print data in hex format
+            for (unsigned int i = 0; i < dlc; ++i)
+            {
+                std::cout << " " << static_cast<int>(data[i]);
+            }
+            isobus::CANHardwareInterface::transmit_can_frame(frame);
+        }
+        else if (status != canERR_NOMSG)
+        {
+            std::cerr << getErrorText(status, "canReadWait failed") << std::endl;
+        }
     }
 }
