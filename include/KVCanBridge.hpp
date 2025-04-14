@@ -6,11 +6,11 @@
 #include <atomic>
 #include <thread>
 
-class KVCanEcho
+class KVCanBridge
 {
 public:
-    KVCanEcho(int channel, long bitrate);
-    ~KVCanEcho();
+    KVCanBridge(int channel, long bitrate);
+    ~KVCanBridge();
 
     void sendMessage(int id, const std::string& message);
     void startTestMessages(int id, const std::string& message);
@@ -19,16 +19,13 @@ public:
 private:
     int channel;
     long bitrate;
-    canHandle handle;
+    canHandle vHandle;
     std::atomic<bool> runningFlag;
     std::thread testThread;
 
-    void openChannel();
-    void setBusParams();
-    void setBusOutputControl();
-    void goBusOn();
-    void goBusOff();
-    void closeChannel();
+    void initializeVCan();
+    void finalizeVCan();
+
     void testMessageLoop(int id, const std::string& message);
 
     std::string getErrorText(canStatus status, const std::string& context);

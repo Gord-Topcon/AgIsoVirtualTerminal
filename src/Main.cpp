@@ -13,7 +13,7 @@ AgISOVirtualTerminalApplication::MainWindow::MainWindow(juce::String name, int v
   DocumentWindow(name,
                  juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),
                  DocumentWindow::allButtons),
-  canEcho(std::make_unique<KVCanEcho>(0, canBITRATE_250K)) // Initialize KVCanEcho here
+  canEcho(std::make_unique<KVCanBridge>(0, canBITRATE_250K))
 {
 	int vtNumber = vtNumberCmdLineArg;
 #ifdef JUCE_WINDOWS

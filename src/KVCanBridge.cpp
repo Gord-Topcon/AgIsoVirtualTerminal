@@ -1,113 +1,98 @@
-#include "KVCanEcho.hpp"
+#include "KVCanBridge.hpp"
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 
-KVCanEcho::KVCanEcho(int channel, long bitrate)
-    : channel(channel), bitrate(bitrate), handle(-1)
+KVCanBridge::KVCanBridge(int channel, long bitrate)
+    : channel(channel), bitrate(bitrate), vHandle(-1)
 {
-    canInitializeLibrary();
-    openChannel();
-    setBusParams();
-    setBusOutputControl();
-    goBusOn();
+    initializeVCan();
+    
     startTestMessages(0x123, "HELLO!");
 }
 
-KVCanEcho::~KVCanEcho()
+KVCanBridge::~KVCanBridge()
 {
     stopTestMessages();
     if (testThread.joinable())
     {
         testThread.join();
     }
-    goBusOff();
-    closeChannel();
+
+    finalizeVCan();
 }
 
-void KVCanEcho::openChannel()
+void KVCanBridge::initializeVCan()
 {
-    handle = canOpenChannel(channel, canOPEN_ACCEPT_VIRTUAL);
-    if (handle < 0)
+    canInitializeLibrary();
+    vHandle = canOpenChannel(channel, canOPEN_ACCEPT_VIRTUAL);
+    if (vHandle < 0)
     {
-        throw std::runtime_error(getErrorText((canStatus)handle, "canOpenChannel failed"));
+        throw std::runtime_error(getErrorText((canStatus)vHandle, "canOpenChannel failed"));
     }
-}
 
-void KVCanEcho::setBusParams()
-{
-    canStatus status = canSetBusParams(handle, bitrate, 0, 0, 0, 0, 0);
+    auto status = canSetBusParams(vHandle, bitrate, 0, 0, 0, 0, 0);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canSetBusParams failed"));
     }
-}
 
-void KVCanEcho::setBusOutputControl()
-{
-    canStatus status = canSetBusOutputControl(handle, canDRIVER_NORMAL);
+    auto status = canSetBusOutputControl(vHandle, canDRIVER_NORMAL);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canSetBusOutputControl failed"));
     }
-}
 
-void KVCanEcho::goBusOn()
-{
-    canStatus status = canBusOn(handle);
+    auto status = canBusOn(vHandle);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canBusOn failed"));
     }
 }
 
-void KVCanEcho::goBusOff()
+void KVCanBridge::finalizeVCan()
 {
-    canStatus status = canBusOff(handle);
+    auto status = canBusOff(vHandle);
     if (status != canOK)
     {
         std::cerr << getErrorText(status, "canBusOff failed") << std::endl;
     }
-}
-
-void KVCanEcho::closeChannel()
-{
-    canStatus status = canClose(handle);
+    auto status = canClose(vHandle);
     if (status != canOK)
     {
         std::cerr << getErrorText(status, "canClose failed") << std::endl;
     }
 }
 
-void KVCanEcho::sendMessage(int id, const std::string& message)
+void KVCanBridge::sendMessage(int id, const std::string& message)
 {
-    canStatus status = canWrite(handle, id, (void *)message.c_str(), message.size(), 0);
+    canStatus status = canWrite(vHandle, id, (void *)message.c_str(), message.size(), 0);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canWrite failed"));
     }
 
-    status = canWriteSync(handle, 500); // Wait up to 500 ms for the message to be sent
+    status = canWriteSync(vHandle, 500); // Wait up to 500 ms for the message to be sent
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canWriteSync failed"));
     }
 }
 
-std::string KVCanEcho::getErrorText(canStatus status, const std::string& context)
+std::string KVCanBridge::getErrorText(canStatus status, const std::string& context)
 {
     char msg[64];
     canGetErrorText(status, msg, sizeof(msg));
     return context + " (" + msg + ")";
 }
 
-void KVCanEcho::startTestMessages(int id, const std::string& message)
+void KVCanBridge::startTestMessages(int id, const std::string& message)
 {
     runningFlag = true;
-    testThread = std::thread(&KVCanEcho::testMessageLoop, this, id, message);
+    testThread = std::thread(&KVCanBridge::testMessageLoop, this, id, message);
 }
 
-void KVCanEcho::stopTestMessages()
+void KVCanBridge::stopTestMessages()
 {
     runningFlag = false;
     if (testThread.joinable())
@@ -116,7 +101,7 @@ void KVCanEcho::stopTestMessages()
     }
 }
 
-void KVCanEcho::testMessageLoop(int id, const std::string& message)
+void KVCanBridge::testMessageLoop(int id, const std::string& message)
 {
     while (runningFlag)
     {
