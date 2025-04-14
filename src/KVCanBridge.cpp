@@ -7,43 +7,38 @@ KVCanBridge::KVCanBridge(int channel, long bitrate)
     : channel(channel), bitrate(bitrate), vHandle(-1)
 {
     initializeVCan();
-    
-    startTestMessages(0x123, "HELLO!");
+    initializeHCan();
 }
 
 KVCanBridge::~KVCanBridge()
 {
-    stopTestMessages();
-    if (testThread.joinable())
-    {
-        testThread.join();
-    }
-
+    finalizeHCan();
     finalizeVCan();
 }
 
 void KVCanBridge::initializeVCan()
 {
     canInitializeLibrary();
+
     vHandle = canOpenChannel(channel, canOPEN_ACCEPT_VIRTUAL);
     if (vHandle < 0)
     {
         throw std::runtime_error(getErrorText((canStatus)vHandle, "canOpenChannel failed"));
     }
 
-    auto status = canSetBusParams(vHandle, bitrate, 0, 0, 0, 0, 0);
+    canStatus status = canSetBusParams(vHandle, bitrate, 0, 0, 0, 0, 0);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canSetBusParams failed"));
     }
 
-    auto status = canSetBusOutputControl(vHandle, canDRIVER_NORMAL);
+    status = canSetBusOutputControl(vHandle, canDRIVER_NORMAL);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canSetBusOutputControl failed"));
     }
 
-    auto status = canBusOn(vHandle);
+    status = canBusOn(vHandle);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canBusOn failed"));
@@ -52,31 +47,32 @@ void KVCanBridge::initializeVCan()
 
 void KVCanBridge::finalizeVCan()
 {
-    auto status = canBusOff(vHandle);
+    canStatus status = canBusOff(vHandle);
     if (status != canOK)
     {
         std::cerr << getErrorText(status, "canBusOff failed") << std::endl;
     }
-    auto status = canClose(vHandle);
+
+    status = canClose(vHandle);
     if (status != canOK)
     {
         std::cerr << getErrorText(status, "canClose failed") << std::endl;
     }
 }
 
-void KVCanBridge::sendMessage(int id, const std::string& message)
+void KVCanBridge::initializeHCan()
 {
-    canStatus status = canWrite(vHandle, id, (void *)message.c_str(), message.size(), 0);
-    if (status != canOK)
-    {
-        throw std::runtime_error(getErrorText(status, "canWrite failed"));
-    }
+    hrxListenerHandle = isobus::CANHardwareInterface::get_can_frame_received_event_dispatcher().add_listener(
+        [this](const isobus::CANMessageFrame& canFrame) { onHCanRx(canFrame); });
 
-    status = canWriteSync(vHandle, 500); // Wait up to 500 ms for the message to be sent
-    if (status != canOK)
-    {
-        throw std::runtime_error(getErrorText(status, "canWriteSync failed"));
-    }
+    htxListenerHandle = isobus::CANHardwareInterface::get_can_frame_transmitted_event_dispatcher().add_listener(
+        [this](const isobus::CANMessageFrame& canFrame) { onHCanTx(canFrame); });
+}
+
+void KVCanBridge::finalizeHCan()
+{
+    isobus::CANHardwareInterface::get_can_frame_received_event_dispatcher().remove_listener(hrxListenerHandle);
+    isobus::CANHardwareInterface::get_can_frame_transmitted_event_dispatcher().remove_listener(htxListenerHandle);
 }
 
 std::string KVCanBridge::getErrorText(canStatus status, const std::string& context)
@@ -86,36 +82,21 @@ std::string KVCanBridge::getErrorText(canStatus status, const std::string& conte
     return context + " (" + msg + ")";
 }
 
-void KVCanBridge::startTestMessages(int id, const std::string& message)
+void KVCanBridge::onHCanRx(const isobus::CANMessageFrame& canFrame)
 {
-    runningFlag = true;
-    testThread = std::thread(&KVCanBridge::testMessageLoop, this, id, message);
+    bridgeHtoVCan(canFrame);
 }
 
-void KVCanBridge::stopTestMessages()
+void KVCanBridge::onHCanTx(const isobus::CANMessageFrame& canFrame)
 {
-    runningFlag = false;
-    if (testThread.joinable())
-    {
-        testThread.join();
-    }
+    bridgeHtoVCan(canFrame);
 }
 
-void KVCanBridge::testMessageLoop(int id, const std::string& message)
+void KVCanBridge::bridgeHtoVCan(const isobus::CANMessageFrame &canFrame)
 {
-    while (runningFlag)
+    canStatus status = canWrite(vHandle, canFrame.identifier, (void *)canFrame.data, canFrame.dataLength, 0);
+    if (status != canOK)
     {
-        try
-        {
-            sendMessage(id, message);
-            std::cout << "Test message sent: ID=" << id << ", Message=" << message << std::endl;
-        }
-        catch (const std::exception& e)
-        {
-            std::cerr << "Error sending test message: " << e.what() << std::endl;
-        }
-
-        // Wait for 5 seconds before sending the next message
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+        throw std::runtime_error(getErrorText(status, "canWrite failed"));
     }
 }

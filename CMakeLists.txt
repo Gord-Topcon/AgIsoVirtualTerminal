@@ -34,7 +34,6 @@ find_package(CAN_Stack MODULE)
 find_package(git_version MODULE)
 find_package(Threads REQUIRED)
 
-# Manually specify the path to Kvaser CANlib
 set(KVASER_CANLIB_INCLUDE_DIR "C:/Program Files (x86)/Kvaser/Canlib/Inc")
 set(KVASER_CANLIB_LIBRARY "C:/Program Files (x86)/Kvaser/Canlib/Lib/x64/canlib32.lib")
 
@@ -70,7 +69,7 @@ juce_generate_juce_header(AgISOVirtualTerminal)
 target_sources(
   AgISOVirtualTerminal
   PRIVATE src/Main.cpp
-          src/KVCanEcho.cpp
+          src/KVCanBridge.cpp
           "src/ServerMainComponent.cpp"
           "src/DataMaskComponent.cpp"
           "src/WorkingSetSelectorComponent.cpp"

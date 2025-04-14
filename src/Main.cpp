@@ -7,13 +7,13 @@
 #include "Main.hpp"
 #include "Settings.hpp"
 #include "git.h"
-#include "KVCanEcho.hpp" // Include the header here
+#include "KVCanBridge.hpp" // Include the header here
 
 AgISOVirtualTerminalApplication::MainWindow::MainWindow(juce::String name, int vtNumberCmdLineArg) :
   DocumentWindow(name,
                  juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),
                  DocumentWindow::allButtons),
-  canEcho(std::make_unique<KVCanBridge>(0, canBITRATE_250K))
+  vCanBridge(std::make_unique<KVCanBridge>(0, canBITRATE_250K))
 {
 	int vtNumber = vtNumberCmdLineArg;
 #ifdef JUCE_WINDOWS
