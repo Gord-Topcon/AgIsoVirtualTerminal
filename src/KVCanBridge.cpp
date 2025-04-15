@@ -10,14 +10,12 @@ KVCanBridge::KVCanBridge(int channel, long bitrate)
     initializeVCan();
     initializeHCan();
 
-    // Start the thread to process incoming CAN messages
     runningFlag = true;
     vCanReadThread = std::thread(&KVCanBridge::processVCanMessages, this);
 }
 
 KVCanBridge::~KVCanBridge()
 {
-    // Stop the thread and wait for it to finish
     runningFlag = false;
     if (vCanReadThread.joinable())
     {
@@ -101,6 +99,14 @@ void KVCanBridge::onHCanRx(const isobus::CANMessageFrame& canFrame)
 
 void KVCanBridge::onHCanTx(const isobus::CANMessageFrame& canFrame)
 {
+    {
+        std::lock_guard<std::mutex> lock(sentPacketMutex);
+        if (sentPacketIds.find(canFrame.identifier) != sentPacketIds.end())
+        {
+            sentPacketIds.erase(canFrame.identifier);
+            return;
+        }
+    }
     bridgeHtoVCan(canFrame);
 }
 
@@ -130,12 +136,12 @@ void KVCanBridge::processVCanMessages()
         {
             frame.identifier = id;
             frame.dataLength = dlc;
+            frame.channel = 0;
             std::copy(data, data + dlc, frame.data);
-            std::cout << "Received CAN message: ID=" << id << ", DLC=" << dlc << std::endl;
-            std::cout << "Data: " << std::hex;  // Print data in hex format
-            for (unsigned int i = 0; i < dlc; ++i)
+            
             {
-                std::cout << " " << static_cast<int>(data[i]);
+                std::lock_guard<std::mutex> lock(sentPacketMutex);
+                sentPacketIds.insert(id);
             }
             isobus::CANHardwareInterface::transmit_can_frame(frame);
         }

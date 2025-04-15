@@ -5,6 +5,8 @@
 #include <string>
 #include <atomic>
 #include <thread>
+#include <set>
+#include <mutex>
 #include "isobus/hardware_integration/can_hardware_interface.hpp"
 
 class KVCanBridge
@@ -19,6 +21,8 @@ private:
     canHandle vHandle;
     std::atomic<bool> runningFlag;
     std::thread vCanReadThread;
+    std::set<long> sentPacketIds;
+    std::mutex sentPacketMutex;
 
     isobus::EventCallbackHandle hrxListenerHandle;
     isobus::EventCallbackHandle htxListenerHandle;
