@@ -55,7 +55,7 @@ ServerMainComponent::ServerMainComponent(
 	timeServingInterface->initialize();
 
 	diagnosticProtocol = std::make_unique<isobus::DiagnosticProtocol>(serverControlFunction);
-	diagnosticProtocol->set_product_identification_brand("Open-Agriculture");
+	diagnosticProtocol->set_product_identification_brand("PbridgeV");
 	diagnosticProtocol->set_product_identification_model("AgIsoVirtualTerminal");
 	diagnosticProtocol->set_software_id_field(0, AgISOVirtualTerminalApplication::getApplicationBuildInfo());
 	diagnosticProtocol->initialize();
@@ -245,7 +245,7 @@ std::vector<std::array<std::uint8_t, 7>> ServerMainComponent::get_versions(isobu
 	nameString << std::hex << std::setfill('0') << std::setw(16) << clientNAME.get_full_name();
 	File isoDirectory(File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName().toStdString() +
 	                  File::getSeparatorString() +
-	                  "Open-Agriculture" +
+	                  "PbridgeV" +
 	                  File::getSeparatorString() +
 	                  ISO_DATA_PATH +
 	                  File::getSeparatorString() +
@@ -303,7 +303,7 @@ std::vector<std::uint8_t> ServerMainComponent::load_version(const std::vector<st
 	std::vector<std::uint8_t> loadedVersionLabel(7);
 	std::string path = (File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName() +
 	                    File::getSeparatorString() +
-	                    "Open-Agriculture" +
+	                    "PbridgeV" +
 	                    File::getSeparatorString() +
 	                    ISO_DATA_PATH +
 	                    File::getSeparatorString())
@@ -356,7 +356,7 @@ bool ServerMainComponent::save_version(const std::vector<std::uint8_t> &objectPo
 	auto userAppData = File::getSpecialLocation(File::userApplicationDataDirectory);
 	std::string path = (userAppData.getFullPathName() +
 	                    File::getSeparatorString() +
-	                    "Open-Agriculture" +
+	                    "PbridgeV" +
 	                    File::getSeparatorString() +
 	                    String(ISO_DATA_PATH))
 	                     .toStdString();
@@ -402,7 +402,7 @@ bool ServerMainComponent::delete_version(const std::vector<std::uint8_t> &versio
 	std::vector<std::filesystem::directory_entry> filesToRemove;
 	std::string path = (File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName() +
 	                    File::getSeparatorString() +
-	                    "Open-Agriculture" +
+	                    "PbridgeV" +
 	                    File::getSeparatorString() +
 	                    ISO_DATA_PATH +
 	                    File::getSeparatorString())
@@ -463,7 +463,7 @@ bool ServerMainComponent::delete_all_versions(isobus::NAME clientNAME)
 	std::vector<std::filesystem::directory_entry> filesToRemove;
 	auto path = (File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName().toStdString() +
 	             File::getSeparatorString() +
-	             "Open-Agriculture" +
+	             "PbridgeV" +
 	             File::getSeparatorString() +
 	             ISO_DATA_PATH +
 	             File::getSeparatorString())
@@ -884,7 +884,7 @@ bool ServerMainComponent::perform(const InvocationInfo &info)
 			auto diagnosticFileBuilder = std::make_unique<ZipFile::Builder>();
 			bool anyFilesAdded = false;
 
-			auto userDataFolder = File(File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName() + File::getSeparatorString() + "Open-Agriculture" + File::getSeparatorString());
+			auto userDataFolder = File(File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName() + File::getSeparatorString() + "PbridgeV" + File::getSeparatorString());
 			auto userDataFiles = userDataFolder.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*");
 			for (auto &file : userDataFiles)
 			{
@@ -915,7 +915,7 @@ bool ServerMainComponent::perform(const InvocationInfo &info)
 				currentTime = currentTime.replaceCharacter(':', '_');
 				const String fileName = File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName() +
 				  File::getSeparatorString() +
-				  "Open-Agriculture" +
+				  "PbridgeV" +
 				  File::getSeparatorString() +
 				  "AgISOVirtualTerminalLogs_" +
 				  currentTime +
@@ -1630,7 +1630,7 @@ void ServerMainComponent::check_load_settings(std::shared_ptr<ValueTree> setting
 void ServerMainComponent::save_settings()
 {
 	auto lDefaultSaveLocation = File::getSpecialLocation(File::userApplicationDataDirectory);
-	String lDataDirectoryPath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/Open-Agriculture");
+	String lDataDirectoryPath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/PbridgeV");
 	File dataDirectory(lDataDirectoryPath);
 	bool lCanSaveSettings = false;
 
@@ -1646,7 +1646,7 @@ void ServerMainComponent::save_settings()
 
 	if (lCanSaveSettings)
 	{
-		String lFilePath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/Open-Agriculture/" + "vt_settings.xml");
+		String lFilePath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/PbridgeV/" + "vt_settings.xml");
 		File settingsFile = File(lFilePath);
 		ValueTree settings("Settings");
 		ValueTree languageCommandSettings("LanguageCommand");
@@ -1752,7 +1752,7 @@ void ServerMainComponent::clear_iso_data()
 {
 	File isoDirectory(File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName().toStdString() +
 	                  File::getSeparatorString() +
-	                  "Open-Agriculture" +
+	                  "PbridgeV" +
 	                  File::getSeparatorString() +
 	                  ISO_DATA_PATH +
 	                  File::getSeparatorString());

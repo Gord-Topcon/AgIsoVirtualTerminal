@@ -17,7 +17,7 @@ Settings::~Settings()
 bool Settings::load_settings()
 {
 	auto lDefaultSaveLocation = File::getSpecialLocation(File::userApplicationDataDirectory);
-	String lDataDirectoryPath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/Open-Agriculture");
+	String lDataDirectoryPath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/PbridgeV");
 	File dataDirectory(lDataDirectoryPath);
 	bool lCanLoadSettings = false;
 
@@ -32,7 +32,7 @@ bool Settings::load_settings()
 
 	if (lCanLoadSettings)
 	{
-		String lFilePath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/Open-Agriculture/" + "vt_settings.xml");
+		String lFilePath = (lDefaultSaveLocation.getFullPathName().toStdString() + "/PbridgeV/" + "vt_settings.xml");
 		File settingsFile = File(lFilePath);
 
 		if (settingsFile.existsAsFile())

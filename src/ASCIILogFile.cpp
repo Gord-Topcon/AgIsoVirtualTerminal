@@ -18,7 +18,7 @@ ASCIILogFile::ASCIILogFile()
 
 	logFile = File(File::getSpecialLocation(File::userApplicationDataDirectory).getFullPathName() +
 	               File::getSeparatorString() +
-	               "Open-Agriculture" +
+	               "PbridgeV" +
 	               File::getSeparatorString() +
 	               "CANLog_" +
 	               fileNameTime +
