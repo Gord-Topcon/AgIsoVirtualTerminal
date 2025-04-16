@@ -9,6 +9,8 @@
 #include "Settings.hpp"
 #include "git.h"
 
+#include "KvaserVirtualCANPlugin.hpp"
+
 AgISOVirtualTerminalApplication::MainWindow::MainWindow(juce::String name, int vtNumberCmdLineArg) :
   DocumentWindow(name,
                  juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId),
@@ -29,6 +31,8 @@ AgISOVirtualTerminalApplication::MainWindow::MainWindow(juce::String name, int v
 #else
 	canDrivers.push_back(std::make_shared<isobus::SocketCANInterface>("can0"));
 #endif
+
+	canDrivers.push_back(std::make_shared<KvaserVirtualCANPlugin>(1));
 
 	jassert(!canDrivers.empty()); // You need some kind of CAN interface to run this program!
 	isobus::CANHardwareInterface::set_number_of_can_channels(1);
