@@ -112,7 +112,14 @@ void KVCanBridge::onHCanTx(const isobus::CANMessageFrame& canFrame)
 
 void KVCanBridge::bridgeHtoVCan(const isobus::CANMessageFrame &canFrame)
 {
-    canStatus status = canWrite(vHandle, canFrame.identifier, (void *)canFrame.data, canFrame.dataLength, 0);
+    unsigned int flags = 0;
+
+    if (canFrame.isExtendedFrame)
+    {
+        flags |= canMSG_EXT;
+    }
+
+    canStatus status = canWrite(vHandle, canFrame.identifier, (void *)canFrame.data, canFrame.dataLength, flags);
     if (status != canOK)
     {
         throw std::runtime_error(getErrorText(status, "canWrite failed"));
@@ -134,6 +141,14 @@ void KVCanBridge::processVCanMessages()
         canStatus status = canReadWait(vHandle, &id, data, &dlc, &flags, &timestamp, 1000); // 1000 ms timeout
         if (status == canOK)
         {
+            if(flags & canMSG_EXT)
+            {
+                frame.isExtendedFrame = true;
+            }
+            else
+            {
+                frame.isExtendedFrame = false;
+            }
             frame.identifier = id;
             frame.dataLength = dlc;
             frame.channel = 0;
