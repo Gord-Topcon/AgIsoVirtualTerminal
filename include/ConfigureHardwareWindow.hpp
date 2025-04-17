@@ -11,16 +11,16 @@
 
 #include "ConfigureHardwareComponent.hpp"
 
-class ServerMainComponent;
+class BridgeMainComponent;
 
 class ConfigureHardwareWindow : public DocumentWindow
 {
 public:
-	ConfigureHardwareWindow(ServerMainComponent &parentComponent, std::vector<std::shared_ptr<isobus::CANHardwarePlugin>> &canDrivers);
+	ConfigureHardwareWindow(BridgeMainComponent &parentComponent, std::vector<std::shared_ptr<isobus::CANHardwarePlugin>> &canDrivers);
 
 	void closeButtonPressed() override;
 
-	ServerMainComponent &parentServer;
+	BridgeMainComponent &parentServer;
 
 private:
 	ConfigureHardwareComponent content;

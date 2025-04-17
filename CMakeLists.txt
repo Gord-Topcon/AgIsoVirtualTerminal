@@ -70,42 +70,14 @@ target_sources(
   AgISOVirtualTerminal
   PRIVATE src/Main.cpp
           src/KVCanBridge.cpp
-          "src/ServerMainComponent.cpp"
-          "src/DataMaskComponent.cpp"
-          "src/WorkingSetSelectorComponent.cpp"
-          "src/PictureGraphicComponent.cpp"
-          "src/WorkingSetComponent.cpp"
-          "src/AlarmMaskComponent.cpp"
-          "src/DataMaskRenderAreaComponent.cpp"
-          "src/JuceManagedWorkingSetCache.cpp"
-          "src/OutputRectangleComponent.cpp"
-          "src/OutputStringComponent.cpp"
-          "src/ButtonComponent.cpp"
-          "src/ContainerComponent.cpp"
-          "src/ObjectPointerComponent.cpp"
-          "src/OutputNumberComponent.cpp"
-          "src/SoftkeyMaskRenderArea.cpp"
-          "src/KeyComponent.cpp"
-          "src/SoftKeyMaskComponent.cpp"
-          "src/OutputMeterComponent.cpp"
-          "src/InputBooleanComponent.cpp"
+          "src/BridgeMainComponent.cpp"
           "src/LoggerComponent.cpp"
-          "src/InputNumberComponent.cpp"
-          "src/OutputEllipseComponent.cpp"
-          "src/OutputLineComponent.cpp"
-          "src/OutputLinearBarGraphComponent.cpp"
-          "src/OutputPolygonComponent.cpp"
-          "src/InputStringComponent.cpp"
-          "src/AlarmMaskAudio.cpp"
           "src/AppImages.cpp"
           "src/ASCIILogFile.cpp"
           "src/ConfigureHardwareWindow.cpp"
           "src/ConfigureHardwareComponent.cpp"
-          "src/StringEncodingConversions.cpp"
-          "src/InputListComponent.cpp"
           "src/ShortcutsWindow.cpp"
-          "src/Settings.cpp"
-          "src/VT_NumberComponent.cpp")
+          "src/Settings.cpp")
 
 target_include_directories(AgISOVirtualTerminal
                            PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)

@@ -6,7 +6,7 @@
 
 #include "ConfigureHardwareWindow.hpp"
 
-ConfigureHardwareWindow::ConfigureHardwareWindow(ServerMainComponent &parentComponent, std::vector<std::shared_ptr<isobus::CANHardwarePlugin>> &canDrivers) :
+ConfigureHardwareWindow::ConfigureHardwareWindow(BridgeMainComponent &parentComponent, std::vector<std::shared_ptr<isobus::CANHardwarePlugin>> &canDrivers) :
   DocumentWindow("Configure Hardware", juce::Desktop::getInstance().getDefaultLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId), DocumentWindow::closeButton),
   parentServer(parentComponent),
   content(*this, canDrivers)

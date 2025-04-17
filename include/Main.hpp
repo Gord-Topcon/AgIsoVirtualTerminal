@@ -8,10 +8,8 @@
 #include <JuceHeader.h>
 #include "ASCIILogFile.hpp"
 #include "AppImages.h"
-#include "ServerMainComponent.hpp"
+#include "BridgeMainComponent.hpp"
 #include "isobus/hardware_integration/can_hardware_interface.hpp"
-#include "isobus/isobus/can_internal_control_function.hpp"
-#include "isobus/isobus/can_network_manager.hpp"
 
 class KVCanBridge;
 
@@ -46,21 +44,7 @@ public:
 		juce::StringArray args;
 		args.addTokens(commandLineParameters, true);
 
-		std::uint8_t vtNumber = 0;
-		for (const auto &arg : args)
-		{
-			if (arg.startsWith("--vt-number"))
-			{
-				vtNumber = arg.fromFirstOccurrenceOf("--vt-number=", false, false).getIntValue();
-				if (0 == vtNumber || vtNumber > 32)
-				{
-					std::cout << "The VT number must be between 1 and 32";
-					vtNumber = 0;
-				}
-			}
-		}
-
-		mainWindow.reset(new MainWindow(getApplicationNameWithBuildInfo(), vtNumber));
+		mainWindow.reset(new MainWindow(getApplicationNameWithBuildInfo()));
 	}
 
 	void shutdown() override
@@ -93,7 +77,7 @@ public:
 	class MainWindow : public juce::DocumentWindow
 	{
 	public:
-		MainWindow(juce::String name, int vtNumberCmdLineArg = 0);
+		MainWindow(juce::String name);
 
 		/* Note: Be careful if you override any DocumentWindow methods - the base
            class uses a lot of them, so by overriding you might break its functionality.
@@ -104,9 +88,7 @@ public:
 		void closeButtonPressed() override;
 
 	private:
-		std::shared_ptr<isobus::InternalControlFunction> serverInternalControlFunction;
 		std::vector<std::shared_ptr<isobus::CANHardwarePlugin>> canDrivers;
-
 		std::unique_ptr<KVCanBridge> vCanBridge;
 
 		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)

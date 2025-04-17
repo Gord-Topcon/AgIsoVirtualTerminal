@@ -6,7 +6,7 @@
 #include "ConfigureHardwareComponent.hpp"
 
 #include "ConfigureHardwareWindow.hpp"
-#include "ServerMainComponent.hpp"
+#include "BridgeMainComponent.hpp"
 #include "isobus/isobus/can_stack_logger.hpp"
 #include "isobus/utility/to_string.hpp"
 
@@ -95,7 +95,7 @@ ConfigureHardwareComponent::ConfigureHardwareComponent(ConfigureHardwareWindow &
 		std::static_pointer_cast<isobus::SocketCANInterface>(parentCANDrivers.at(0))->set_name(socketCANNameEditor.getText().toStdString());
 		isobus::CANStackLogger::info("Updated socket CAN interface name to: " + socketCANNameEditor.getText().toStdString());
 #endif
-		parent.parentServer.save_settings();
+		//parent.parentServer.save_settings();
 	};
 }
 
