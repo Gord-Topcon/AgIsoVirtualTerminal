@@ -64,6 +64,7 @@ juce_generate_juce_header(AgISOVirtualTerminal)
 target_sources(
   AgISOVirtualTerminal
   PRIVATE src/Main.cpp
+          "src/KvaserVirtualCANPlugin.cpp"
           "src/ServerMainComponent.cpp"
           "src/DataMaskComponent.cpp"
           "src/WorkingSetSelectorComponent.cpp"
@@ -102,16 +103,28 @@ target_sources(
           "src/VT_NumberComponent.cpp")
 
 target_include_directories(AgISOVirtualTerminal
-                           PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
+                           PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include
+                                   "C:/Program Files (x86)/Kvaser/Canlib/INC")
 
 target_link_libraries(
   AgISOVirtualTerminal
   PRIVATE juce::juce_gui_extra juce::juce_audio_basics juce::juce_audio_utils
           isobus::Isobus isobus::HardwareIntegration isobus::Utility
+          "C:/Program Files (x86)/Kvaser/Canlib/Lib/x64/canlib32.lib"
   PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_lto_flags
          cmake_git_version_tracking)
 
 if(WIN32)
+  add_custom_command(
+    TARGET AgISOVirtualTerminal
+    POST_BUILD
+    COMMENT "Copying Kvaser canlib DLL to the build directory"
+    COMMAND
+      "${CMAKE_COMMAND}" -E copy_if_different
+      "C:/Program Files (x86)/Kvaser/Canlib/bin_x64/canlib32.dll"
+      "$<TARGET_FILE_DIR:AgISOVirtualTerminal>"
+    VERBATIM)
+
   add_custom_command(
     TARGET AgISOVirtualTerminal
     POST_BUILD
